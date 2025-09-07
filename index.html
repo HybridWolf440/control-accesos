@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistema de Control de Accesos</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>Sistema de Control de Accesos</h1>
+    <nav class="user-nav" aria-label="Usuario">
+      <span id="currentUser" class="muted"></span>
+      <button id="btnLogout" class="btn btn-ghost" hidden>Salir</button>
+    </nav>
+  </header>
+
+  <!-- NAV PRINCIPAL -->
+  <nav class="tabs" aria-label="Navegación principal">
+    <button data-view="inicio" class="tab active" id="tabInicio">Inicio</button>
+    <button data-view="login" class="tab" id="tabLogin">Iniciar sesión</button>
+    <button data-view="dashboard" class="tab" hidden>Dashboard</button>
+    <button data-view="empleados" class="tab" hidden>Empleados</button>
+    <button data-view="visitas" class="tab" hidden>Visitas</button>
+    <button data-view="eventos" class="tab" hidden>Eventos</button>
+    <button data-view="reportes" class="tab" hidden>Reportes</button>
+  </nav>
+
+  <main id="views" class="container">
+    <div id="flash" class="flash" role="status" aria-live="polite"></div>
+
+    <!-- INICIO (landing con 2 opciones) -->
+    <section id="view-inicio" class="view visible">
+      <div class="hero">
+        <h2>Bienvenido</h2>
+        <p class="muted">Selecciona una opción para continuar</p>
+        <div class="hero-actions">
+          <button id="btnSoyVisitante" class="btn hero-btn">Soy visitante</button>
+          <button id="btnSoyEmpleado" class="btn btn-ghost hero-btn">Soy empleado</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOGIN -->
+    <section id="view-login" class="view">
+      <div class="card">
+        <h2>Iniciar sesión</h2>
+        <form id="formLogin" class="grid gap">
+          <label>
+            <span>Usuario (demo: admin)</span>
+            <input type="text" name="username" required autocomplete="username" />
+          </label>
+          <label>
+            <span>Contraseña (demo: admin)</span>
+            <input type="password" name="password" required autocomplete="current-password" />
+          </label>
+          <button class="btn" type="submit">Entrar</button>
+        </form>
+        <p class="muted small">
+          Roles de demo: <strong>admin</strong>, <strong>recepcion</strong>, <strong>seguridad</strong>, <strong>rh</strong> (contraseña: <code>admin</code> en todos).
+        </p>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section id="view-dashboard" class="view">
+      <div class="grid cols-3 gap">
+        <div class="card stat">
+          <h3>Empleados dentro</h3>
+          <p id="statEmpleados" class="kpi">0</p>
+        </div>
+        <div class="card stat">
+          <h3>Visitas dentro</h3>
+          <p id="statVisitas" class="kpi">0</p>
+        </div>
+        <div class="card stat">
+          <h3>Eventos activos</h3>
+          <p id="statEventos" class="kpi">0</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Ocupación por piso (hoy)</h3>
+        <table class="table" id="tablaOcupacion">
+          <thead><tr><th>Piso</th><th>Personas</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- EMPLEADOS -->
+    <section id="view-empleados" class="view">
+      <div class="grid cols-2 gap">
+        <div class="card">
+          <h3>Alta de empleado</h3>
+          <form id="formEmpleado" class="grid gap">
+            <label><span>Nombre</span><input name="nombre" required /></label>
+            <label><span>ID empleado</span><input name="id" required /></label>
+            <label>
+              <span>Piso autorizado</span>
+              <select name="piso" required>
+                <option value="1">1</option><option value="2">2</option>
+                <option value="3">3</option><option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </label>
+            <div class="row">
+              <button class="btn" type="submit">Guardar</button>
+              <button class="btn btn-ghost" type="reset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Listado</h3>
+          <div class="row">
+            <input id="searchEmpleado" placeholder="Buscar por nombre o ID…" />
+            <button id="exportEmpleados" class="btn btn-ghost">Exportar CSV</button>
+          </div>
+          <table class="table" id="tablaEmpleados">
+            <thead>
+              <tr><th>Nombre</th><th>ID</th><th>Piso</th><th>Estado</th><th>Acciones</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISITAS -->
+    <section id="view-visitas" class="view">
+      <div class="grid cols-2 gap">
+        <div class="card">
+          <h3>Registro rápido de visita</h3>
+          <form id="formVisita" class="grid gap">
+            <label><span>Nombre</span><input name="nombre" required /></label>
+            <label><span>Empresa</span><input name="empresa" /></label>
+            <label><span>Anfitrión</span><input name="anfitrion" required /></label>
+            <label>
+              <span>Piso destino</span>
+              <select name="piso" required>
+                <option value="1">1</option><option value="2">2</option>
+                <option value="3">3</option><option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </label>
+            <div class="row">
+              <button class="btn" type="submit">Generar pase</button>
+              <button class="btn btn-ghost" type="reset">Limpiar</button>
+            </div>
+          </form>
+        </div>
+        <div class="card" id="cardVisitasTabla">
+          <h3>Visitas en el edificio</h3>
+          <table class="table" id="tablaVisitas">
+            <thead>
+              <tr><th>Nombre</th><th>Empresa</th><th>Anfitrión</th><th>Piso</th><th>Estado</th><th>Acciones</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTOS -->
+    <section id="view-eventos" class="view">
+      <div class="grid cols-2 gap">
+        <div class="card">
+          <h3>Crear evento</h3>
+          <form id="formEvento" class="grid gap">
+            <label><span>Nombre del evento</span><input name="nombre" required /></label>
+            <label><span>Fecha</span><input name="fecha" type="date" required /></label>
+            <label><span>Piso</span>
+              <select name="piso" required>
+                <option value="1">1</option><option value="2">2</option>
+                <option value="3">3</option><option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </label>
+            <button class="btn" type="submit">Guardar evento</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Eventos</h3>
+          <table class="table" id="tablaEventos">
+            <thead><tr><th>Nombre</th><th>Fecha</th><th>Piso</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTES -->
+    <section id="view-reportes" class="view">
+      <div class="card">
+        <h3>Reportes</h3>
+        <form id="formReporte" class="row">
+          <label>Desde <input type="date" name="desde" required /></label>
+          <label>Hasta <input type="date" name="hasta" required /></label>
+          <select name="tipo" required>
+            <option value="ocupacion">Ocupación por piso</option>
+            <option value="personas">Entradas/Salidas por persona</option>
+          </select>
+          <button class="btn" type="submit">Generar</button>
+          <button id="exportReporte" type="button" class="btn btn-ghost">Exportar CSV</button>
+        </form>
+        <div class="table-wrap">
+          <table class="table" id="tablaReporte">
+            <thead></thead><tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer small muted">
+    &copy; 2025 Editorial XYZ — MVP de examen (demo).
+  </footer>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>
